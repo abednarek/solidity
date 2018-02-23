@@ -864,10 +864,9 @@ BOOST_AUTO_TEST_CASE(return_dynamic_types_cross_call_out_of_range)
 		else
 		{
 			ABI_CHECK(callContractFunction("f(uint256)", 0x60), encodeArgs());
-			// This checks that bytes is correctly padded. We need returndatasize for that.
-			ABI_CHECK(callContractFunction("f(uint256)", 0x7f), encodeArgs());
+			ABI_CHECK(callContractFunction("f(uint256)", 0x61), encodeArgs(true));
 		}
-		ABI_CHECK(callContractFunction("f(uint256)", 0x180), encodeArgs(true));
+		ABI_CHECK(callContractFunction("f(uint256)", 0x80), encodeArgs(true));
 	)
 }
 
