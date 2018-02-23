@@ -857,10 +857,17 @@ BOOST_AUTO_TEST_CASE(return_dynamic_types_cross_call_out_of_range)
 	BOTH_ENCODERS(
 		compileAndRun(sourceCode, 0, "C");
 		if (m_evmVersion == EVMVersion::homestead())
+		{
 			ABI_CHECK(callContractFunction("f(uint256)", 0x60), encodeArgs(true));
+			ABI_CHECK(callContractFunction("f(uint256)", 0x7f), encodeArgs(true));
+		}
 		else
+		{
 			ABI_CHECK(callContractFunction("f(uint256)", 0x60), encodeArgs());
-		ABI_CHECK(callContractFunction("f(uint256)", 0x61), encodeArgs(true));
+			// This checks that bytes is correctly padded. We need returndatasize for that.
+			ABI_CHECK(callContractFunction("f(uint256)", 0x7f), encodeArgs());
+		}
+		ABI_CHECK(callContractFunction("f(uint256)", 0x180), encodeArgs(true));
 	)
 }
 
