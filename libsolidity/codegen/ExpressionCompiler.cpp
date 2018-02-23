@@ -1857,13 +1857,12 @@ void ExpressionCompiler::appendExternalFunctionCall(
 		}
 		else
 			solAssert(retSize > 0, "");
-		m_context << (haveReturndatacopy ? Instruction::RETURNDATASIZE : u256(retSize));
+		m_context << (haveReturndatacopy ? eth::AssemblyItem(Instruction::RETURNDATASIZE) : u256(retSize));
 		// Stack: return_data_start return_data_size
-
 		if (needToUpdateFreeMemoryPtr)
 			m_context.appendInlineAssembly(R"({
 				// round size to the next multiple of 32
-				let newMem := add(start, and(add(size, 31), not(31)))
+				let newMem := add(start, and(add(size, 0x1f), not(0x1f)))
 				mstore(0x40, newMem)
 			})", {"start", "size"});
 
