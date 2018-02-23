@@ -788,6 +788,9 @@ BOOST_AUTO_TEST_CASE(complex_struct)
 
 BOOST_AUTO_TEST_CASE(return_dynamic_types_cross_call_simple)
 {
+	if (m_evmVersion == EVMVersion::homestead())
+		return;
+
 	string sourceCode = R"(
 		contract C {
 			function dyn() public returns (bytes) {
@@ -806,6 +809,9 @@ BOOST_AUTO_TEST_CASE(return_dynamic_types_cross_call_simple)
 
 BOOST_AUTO_TEST_CASE(return_dynamic_types_cross_call_advanced)
 {
+	if (m_evmVersion == EVMVersion::homestead())
+		return;
+
 	string sourceCode = R"(
 		contract C {
 			function dyn() public returns (bytes a, uint b, bytes20[] c, uint d) {
@@ -850,7 +856,10 @@ BOOST_AUTO_TEST_CASE(return_dynamic_types_cross_call_out_of_range)
 	)";
 	BOTH_ENCODERS(
 		compileAndRun(sourceCode, 0, "C");
-		ABI_CHECK(callContractFunction("f(uint256)", 0x60), encodeArgs());
+		if (m_evmVersion == EVMVersion::homestead())
+			ABI_CHECK(callContractFunction("f(uint256)", 0x60), encodeArgs(true));
+		else
+			ABI_CHECK(callContractFunction("f(uint256)", 0x60), encodeArgs());
 		ABI_CHECK(callContractFunction("f(uint256)", 0x61), encodeArgs(true));
 	)
 }
