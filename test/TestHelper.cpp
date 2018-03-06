@@ -43,6 +43,11 @@ Options::Options()
 			ipcPath = suite.argv[i + 1];
 			i++;
 		}
+		else if (string(suite.argv[i]) == "--testpath" && i + 1 < suite.argc)
+		{
+			testPath = suite.argv[i + 1];
+			i++;
+		}
 		else if (string(suite.argv[i]) == "--optimize")
 			optimize = true;
 		else if (string(suite.argv[i]) == "--evm-version")
