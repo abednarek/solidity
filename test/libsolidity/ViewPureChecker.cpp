@@ -158,7 +158,6 @@ BOOST_AUTO_TEST_CASE(environment_access_for_050)
 		make_pair("uint256", "block.number"),
 		make_pair("uint256", "block.gaslimit"),
 		make_pair("bytes32", "blockhash(7)"),
-		make_pair("uint256", "msg.gas"),
 		make_pair("uint256", "msg.value"),
 		make_pair("address", "msg.sender"),
 		make_pair("address", "tx.origin"),
@@ -188,7 +187,6 @@ BOOST_AUTO_TEST_CASE(environment_access_for_050)
 		CHECK_WARNING_ALLOW_MULTI(
 			"pragma experimental \"v0.5.0\"; contract C { function f() view public { " + type + " x = " + access + "; x; } }",
 			(std::vector<std::string>{
-				"Experimental features are turned on.",
 				"Function state mutability can be restricted to pure"
 		}));
 	}
