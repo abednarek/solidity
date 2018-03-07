@@ -8596,7 +8596,7 @@ BOOST_AUTO_TEST_CASE(blockhash)
 			}
 		}
 	)";
-	CHECK_SUCCESS_NO_WARNINGS(code);
+	CHECK_WARNING(code, "\"block.blockhash()\" has been deprecated in favor of \"blockhash()\"");
 
 	code = R"(
 		contract C {
@@ -8611,7 +8611,7 @@ BOOST_AUTO_TEST_CASE(blockhash)
 			function f() public returns (bytes32) { return block.blockhash(3); }
 		}
 	)";
-	CHECK_ERROR(code, TypeError, "Member \"blockhash\" not found or not visible after argument-dependent lookup in block");
+	CHECK_ERROR(code, TypeError, "\"block.blockhash()\" has been deprecated in favor of \"blockhash()\"");
 }
 
 BOOST_AUTO_TEST_SUITE_END()
