@@ -25,6 +25,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <string>
+#include <tuple>
 
 using namespace std;
 
@@ -107,6 +108,7 @@ BOOST_AUTO_TEST_CASE(environment_access)
 	vector<string> view{
 		"block.coinbase",
 		"block.timestamp",
+		"block.blockhash(7)",
 		"block.difficulty",
 		"block.number",
 		"block.gaslimit",
@@ -117,16 +119,15 @@ BOOST_AUTO_TEST_CASE(environment_access)
 		"tx.origin",
 		"tx.gasprice",
 		"this",
-		"blockhash(7)",
 		"address(1).balance"
 	};
 	vector<string> pure{
 		"msg.data",
 		"msg.data[0]",
 		"msg.sig",
+		"block.blockhash", // Not evaluating the function
 		"msg",
 		"block",
-		"blockhash", // Not evaluating the function
 		"tx"
 	};
 	for (string const& x: view)
@@ -144,6 +145,51 @@ BOOST_AUTO_TEST_CASE(environment_access)
 			(std::vector<std::string>{
 				"Function state mutability can be restricted to pure",
 				"Use of the \"var\" keyword is deprecated."
+		}));
+	}
+}
+
+BOOST_AUTO_TEST_CASE(environment_access_for_050)
+{
+	vector<pair<string, string>> view{
+		make_pair("address", "block.coinbase"),
+		make_pair("uint256", "block.timestamp"),
+		make_pair("uint256", "block.difficulty"),
+		make_pair("uint256", "block.number"),
+		make_pair("uint256", "block.gaslimit"),
+		make_pair("bytes32", "blockhash(7)"),
+		make_pair("uint256", "msg.gas"),
+		make_pair("uint256", "msg.value"),
+		make_pair("address", "msg.sender"),
+		make_pair("address", "tx.origin"),
+		make_pair("uint256", "tx.gasprice"),
+		make_pair("C", "this"),
+		make_pair("uint256", "address(1).balance")
+	};
+	vector<tuple<string, string>> pure{
+		make_pair("bytes1", "msg.data[0]"),
+		make_pair("bytes4", "msg.sig"),
+		make_pair("uint256", "7")
+	};
+	for (auto const& x: view)
+	{
+		const string& type = get<0>(x);
+		const string& access = get<1>(x);
+		CHECK_ERROR(
+			"pragma experimental \"v0.5.0\"; contract C { function f() pure public { " + type + " x = " + access + "; x; } }",
+			TypeError,
+			"Function declared as pure, but this expression (potentially) reads from the environment or state and thus requires \"view\""
+		);
+	}
+	for (auto const& x: pure)
+	{
+		const string& type = get<0>(x);
+		const string& access = get<1>(x);
+		CHECK_WARNING_ALLOW_MULTI(
+			"pragma experimental \"v0.5.0\"; contract C { function f() view public { " + type + " x = " + access + "; x; } }",
+			(std::vector<std::string>{
+				"Experimental features are turned on.",
+				"Function state mutability can be restricted to pure"
 		}));
 	}
 }
